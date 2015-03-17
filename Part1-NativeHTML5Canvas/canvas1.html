@@ -7,8 +7,9 @@
     <script src="nativeCanvas.js"></script>
 </head>
 <body>
-    <canvas id="circle" width="800" height="800">Your browser does not support the HTML5 canvas</canvas>
+    <canvas id="circle" width="800" height="800">Your browser does not support the HTML5 canvas</canvas><br>
+    <button onclick="setInterval(drawDots, 10)">Play</button>
+    <button onclick="clearInterval(timer)">Pause</button>
     <button onclick="reverse()">Reverse</button>
-    <button onclick="pause()">Pause</button>
 </body>
 </html>

@@ -16,6 +16,7 @@ const DOT = {
 };
 var dots = [];
 var context = null;
+var timer = null;
 
 window.onload = function () {
     context = document.getElementById("circle").getContext("2d");
@@ -36,7 +37,7 @@ window.onload = function () {
         }
 
         // Start Animation
-        setInterval(drawDots, 10);
+        timer = setInterval(drawDots, 10);
     }
 };
 
@@ -75,27 +76,12 @@ function clearCanvas() {
     context.stroke();
 }
 
+function start() {
+
+}
+
 function reverse() {
     dots.forEach(function (dot) {
         dot.orbitSpeed *= -1;
     })
-}
-
-function pause() {
-    // Dots are moving
-    if (dots.some(function (dot) {
-            return dot.orbitSpeed != 0;
-        })) {
-        dots.forEach(function (dot) {
-            dot.savedSpeed = dot.orbitSpeed;
-            dot.orbitSpeed = 0;
-        })
-    }
-    // Save the dot speeds for resume
-    else {
-        dots.forEach(function (dot) {
-            dot.orbitSpeed = dot.savedSpeed;
-            dot.savedSpeed = null;
-        })
-    }
 }
