@@ -1,47 +1,44 @@
 /**
- * Created by Douglas Callaway on 3/16/15.
+ * Created by Douglas Callaway on 3/18/15.
  */
 const FULL_CIRCLE = 2 * Math.PI;
 const REFRESH_RATE = 10;
 
-var outerCircle = {
-    borderWidth: 5,
-    background: "white",
-    borderColor: "lightGrey"
-};
-var satellite = {
-    size: 20,
-    color: "blue",
-    orbitSpeed: Math.PI / 500
-};
-
+var outerCircle = new fabric.Circle({
+    strokeWidth: 5,
+    fill: "white",
+    radius: "300",
+    stroke: "lightGrey"
+});
 var satellites = [],
     numberSatellites = 5,
-    context = null,
+    canvas = null,
     timer = null;
 
 window.onload = function () {
     // Get document objects
-    context = document.getElementById("canvas").getContext("2d");
+    canvas = new fabric.Canvas('canvas');
 
-    if (context) {
+    if (canvas) {
 
-        context.translate(context.canvas.width / 2, context.canvas.height / 2);
-        outerCircle.radius = Math.min(context.canvas.width, context.canvas.height) / 2 - outerCircle.borderWidth;
+        outerCircle.setRadius(Math.min(canvas.getWidth(), canvas.getHeight()) / 2 - outerCircle.strokeWidth);
 
         // Initialize satellites
         for (var i = 0; i < numberSatellites; i++) {
 
-            var newSatellite = Object.create(satellite);
+            var newSatellite = new fabric.Circle({
+                fill: "blue",
+                left: 100,
+                top: 100,
+                radius: 20
+            });
 
-            // First orbit size = satellite.size
-            newSatellite.orbit = Math.max(satellite.size, ((outerCircle.radius - satellite.size) / numberSatellites) * i + 1);
-            newSatellite.position = Math.random() * FULL_CIRCLE;
-            newSatellite.orbitSpeed *= Math.random();
+            newSatellite.setRadius(20);
             satellites.push(newSatellite);
+            canvas.add(outerCircle, newSatellite);
         }
 
-        startAnimation();
+        //startAnimation();
     }
 };
 

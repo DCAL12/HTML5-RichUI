@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>FabricJS Canvas</title>
+    <link rel="stylesheet" href="../styles.css"/>
+    <script src="fabric.js"></script>
+    <script src="fabricSatellites.js"></script>
+</head>
+
+<body>
+    <section id="display">
+        <canvas id="canvas" width="800" height="800">Your browser does not support the HTML5 canvas</canvas>
+    </section>
+
+    <section id="controls">
+        <button id="play" class="control" onclick="startAnimation()">Play</button>
+        <button id="pause" class="control" onclick="stopAnimation()">Pause</button>
+        <button id="reverse" class="control" onclick="reverse()">Reverse</button>
+    </section>
+
+</body>
+</html>
