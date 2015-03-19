@@ -41,7 +41,8 @@ window.onload = function () {
             var newSatellite = Object.create(satellite);
             newSatellite.orbit = orbitSpacing * i + satellite.getRadiusX();
             //newSatellite.position = Math.random() * FULL_CIRCLE;
-            newSatellite.orbitSpeed *= 1 / getRandomInteger(minOrbitSpeed, maxOrbitSpeed);
+            //newSatellite.orbitSpeed *= 1 / getRandomInteger(minOrbitSpeed, maxOrbitSpeed);
+            newSatellite.orbitSpeed = Math.PI / 50;
             newSatellite.set({
                 left: newSatellite.orbit * Math.cos(newSatellite.position) + canvas.getWidth() / 2,
                 top: newSatellite.orbit * Math.sin(newSatellite.position) + canvas.getHeight() / 2
@@ -49,9 +50,31 @@ window.onload = function () {
             satellites.push(newSatellite);
             canvas.add(newSatellite);
         }
-        //startAnimation();
+        setTimeout(animate(), 0);
     }
 };
+
+function animate() {
+    satellites.forEach(function (satellite) {
+        var newLeft,
+            newTop;
+        satellite.position += satellite.orbitSpeed;
+        newLeft = satellite.orbit * Math.cos(satellite.position) + canvas.getWidth() / 2;
+        newTop = satellite.orbit * Math.sin(satellite.position) + canvas.getHeight() / 2;
+        satellite.animate({
+            left: newLeft,
+            top: newTop
+        },{
+            duration: 1000,
+            onChange: canvas.renderAll.bind(canvas)
+                //if (satellite === satellites[satellites.length - 1]){
+
+                //}
+
+        });
+    });
+
+}
 
 function startAnimation() {
     timer = setInterval(drawSatellites, REFRESH_RATE);
