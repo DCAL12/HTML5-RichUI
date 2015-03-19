@@ -1,5 +1,5 @@
 /* build: `node build.js modules=ALL exclude=gestures,cufon,json minifier=uglifyjs` */
-/*! Fabric.js Copyright 2008-2015, Printio (Juriy Zaytsev, Maxim Chernyak) */
+/*! Fabric.js Copyright 2008-2014, Printio (Juriy Zaytsev, Maxim Chernyak) */
 
 var fabric = fabric || { version: "1.4.13" };
 if (typeof exports !== 'undefined') {
@@ -9,8 +9,6 @@ if (typeof exports !== 'undefined') {
 if (typeof document !== 'undefined' && typeof window !== 'undefined') {
   fabric.document = document;
   fabric.window = window;
-  // ensure globality even if entire library were function wrapped (as in Meteor.js packaging system)
-  window.fabric = fabric;
 }
 else {
   // assume we're running under node.js when document/window are not present
@@ -1036,8 +1034,8 @@ fabric.Collection = {
    * Calculate bounding box of a elliptic-arc
    * @param {Number} fx start point of arc
    * @param {Number} fy
-   * @param {Number} rx horizontal size
-   * @param {Number} ry vertical size
+   * @param {Number} rx horizontal radius
+   * @param {Number} ry vertical radius
    * @param {Number} rot angle of horizontal axe
    * @param {Number} large 1 or 0, whatever the arc is the big or the small on the 2 points
    * @param {Number} sweep 1 or 0, 1 clockwise or counterclockwise direction
@@ -1494,11 +1492,11 @@ fabric.Collection = {
    * @return {String} Escaped version of a string
    */
   function escapeXml(string) {
-    return string.replace(/&/g, '&')
-       .replace(/"/g, '"')
-       .replace(/'/g, "'")
-       .replace(/</g, '<')
-       .replace(/>/g, '>');
+    return string.replace(/&/g, '&amp;')
+       .replace(/"/g, '&quot;')
+       .replace(/'/g, '&apos;')
+       .replace(/</g, '&lt;')
+       .replace(/>/g, '&gt;');
   }
 
   /**
@@ -1828,7 +1826,7 @@ fabric.Collection = {
    * Cross-browser wrapper for getting event's coordinates
    * @memberOf fabric.util
    * @param {Event} event Event object
-   * @param {HTMLCanvasElement} upperCanvasEl <canvas> element on which object selection is drawn
+   * @param {HTMLCanvasElement} upperCanvasEl &lt;canvas> element on which object selection is drawn
    */
   function getPointer(event, upperCanvasEl) {
     event || (event = fabric.window.event);
@@ -2346,12 +2344,8 @@ fabric.log = function() { };
 fabric.warn = function() { };
 
 if (typeof console !== 'undefined') {
-
   ['log', 'warn'].forEach(function(methodName) {
-
-    if (typeof console[methodName] !== 'undefined' &&
-        typeof console[methodName].apply === 'function') {
-
+    if (typeof console[methodName] !== 'undefined' && console[methodName].apply) {
       fabric[methodName] = function() {
         return console[methodName].apply(console, arguments);
       };
@@ -2848,7 +2842,7 @@ if (typeof console !== 'undefined') {
       attributesMap = {
         cx:                   'left',
         x:                    'left',
-        r:                    'size',
+        r:                    'radius',
         cy:                   'top',
         y:                    'top',
         display:              'visible',
@@ -5662,7 +5656,7 @@ fabric.Pattern = fabric.util.createClass(/** @lends fabric.Pattern.prototype */ 
 
     /**
      * Constructor
-     * @param {HTMLElement | String} el <canvas> element to initialize instance on
+     * @param {HTMLElement | String} el &lt;canvas> element to initialize instance on
      * @param {Object} [options] Options object
      * @return {Object} thisArg
      */
@@ -5787,7 +5781,7 @@ fabric.Pattern = fabric.util.createClass(/** @lends fabric.Pattern.prototype */ 
 
     /**
      * @private
-     * @param {HTMLElement | String} el <canvas> element to initialize instance on
+     * @param {HTMLElement | String} el &lt;canvas> element to initialize instance on
      * @param {Object} [options] Options object
      */
     _initStatic: function(el, options) {
@@ -6323,7 +6317,7 @@ fabric.Pattern = fabric.util.createClass(/** @lends fabric.Pattern.prototype */ 
     },
 
     /**
-     * Returns <canvas> element corresponding to this instance
+     * Returns &lt;canvas> element corresponding to this instance
      * @return {HTMLCanvasElement}
      */
     getElement: function () {
@@ -6807,7 +6801,7 @@ fabric.Pattern = fabric.util.createClass(/** @lends fabric.Pattern.prototype */ 
      * @see {@link http://jsfiddle.net/fabricjs/jQ3ZZ/|jsFiddle demo}
      * @example <caption>Normal SVG output</caption>
      * var svg = canvas.toSVG();
-     * @example <caption>SVG output without preamble (without <?xml ../>)</caption>
+     * @example <caption>SVG output without preamble (without &lt;?xml ../>)</caption>
      * var svg = canvas.toSVG({suppressPreamble: true});
      * @example <caption>SVG output with viewBox attribute</caption>
      * var svg = canvas.toSVG({
@@ -7325,7 +7319,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
     onMouseDown: function(pointer) {
       this._prepareForDrawing(pointer);
       // capture coordinates immediately
-      // this allows to draw satellites (when movement never occurs)
+      // this allows to draw dots (when movement never occurs)
       this._captureDrawingPath(pointer);
       this._render();
     },
@@ -7407,7 +7401,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
 
       //if we only have 2 points in the path and they are the same
       //it means that the user only clicked the canvas without moving the mouse
-      //then we should be drawing a satellite. A path isn't drawn between two identical satellites
+      //then we should be drawing a dot. A path isn't drawn between two identical dots
       //that's why we set them apart a bit
       if (this._points.length === 2 && p1.x === p2.x && p1.y === p2.y) {
         p1.x -= 0.5;
@@ -7497,7 +7491,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
       if (pathData === 'M 0 0 Q 0 0 0 0 L 0 0') {
         // do not create 0 width/height paths, as they are
         // rendered inconsistently across browsers
-        // Firefox 4, for example, renders a satellite,
+        // Firefox 4, for example, renders a dot,
         // whereas Chrome 10 renders nothing
         this.canvas.renderAll();
         return;
@@ -7591,7 +7585,7 @@ fabric.CircleBrush = fabric.util.createClass(fabric.BaseBrush, /** @lends fabric
     for (var i = 0, len = this.points.length; i < len; i++) {
       var point = this.points[i],
           circle = new fabric.Circle({
-            radius: point.size,
+            radius: point.radius,
             left: point.x,
             top: point.y,
             originX: 'center',
@@ -7653,35 +7647,35 @@ fabric.SprayBrush = fabric.util.createClass( fabric.BaseBrush, /** @lends fabric
   width:              10,
 
   /**
-   * Density of a spray (number of satellites per chunk)
+   * Density of a spray (number of dots per chunk)
    * @type Number
    * @default
    */
   density:            20,
 
   /**
-   * Width of spray satellites
+   * Width of spray dots
    * @type Number
    * @default
    */
   dotWidth:           1,
 
   /**
-   * Width variance of spray satellites
+   * Width variance of spray dots
    * @type Number
    * @default
    */
   dotWidthVariance:   1,
 
   /**
-   * Whether opacity of a satellite should be random
+   * Whether opacity of a dot should be random
    * @type Boolean
    * @default
    */
   randomOpacity:        false,
 
   /**
-   * Whether overlapping satellites (rectangles) should be removed (for performance reasons)
+   * Whether overlapping dots (rectangles) should be removed (for performance reasons)
    * @type Boolean
    * @default
    */
@@ -7942,7 +7936,7 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
 
     /**
      * Constructor
-     * @param {HTMLElement | String} el <canvas> element to initialize instance on
+     * @param {HTMLElement | String} el &lt;canvas> element to initialize instance on
      * @param {Object} [options] Options object
      * @return {Object} thisArg
      */
@@ -8858,7 +8852,7 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
     },
 
     /**
-     * Returns <canvas> element on which object selection is drawn
+     * Returns &lt;canvas> element on which object selection is drawn
      * @return {HTMLCanvasElement}
      */
     getSelectionElement: function () {
@@ -9118,12 +9112,12 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
       addListener(this.upperCanvasEl, 'touchstart', this._onMouseDown);
       addListener(this.upperCanvasEl, 'touchmove', this._onMouseMove);
 
-      if (typeof eventjs !== 'undefined' && 'add' in eventjs) {
-        eventjs.add(this.upperCanvasEl, 'gesture', this._onGesture);
-        eventjs.add(this.upperCanvasEl, 'drag', this._onDrag);
-        eventjs.add(this.upperCanvasEl, 'orientation', this._onOrientationChange);
-        eventjs.add(this.upperCanvasEl, 'shake', this._onShake);
-        eventjs.add(this.upperCanvasEl, 'longpress', this._onLongPress);
+      if (typeof Event !== 'undefined' && 'add' in Event) {
+        Event.add(this.upperCanvasEl, 'gesture', this._onGesture);
+        Event.add(this.upperCanvasEl, 'drag', this._onDrag);
+        Event.add(this.upperCanvasEl, 'orientation', this._onOrientationChange);
+        Event.add(this.upperCanvasEl, 'shake', this._onShake);
+        Event.add(this.upperCanvasEl, 'longpress', this._onLongPress);
       }
     },
 
@@ -9156,12 +9150,12 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
       removeListener(this.upperCanvasEl, 'touchstart', this._onMouseDown);
       removeListener(this.upperCanvasEl, 'touchmove', this._onMouseMove);
 
-      if (typeof eventjs !== 'undefined' && 'remove' in eventjs) {
-        eventjs.remove(this.upperCanvasEl, 'gesture', this._onGesture);
-        eventjs.remove(this.upperCanvasEl, 'drag', this._onDrag);
-        eventjs.remove(this.upperCanvasEl, 'orientation', this._onOrientationChange);
-        eventjs.remove(this.upperCanvasEl, 'shake', this._onShake);
-        eventjs.remove(this.upperCanvasEl, 'longpress', this._onLongPress);
+      if (typeof Event !== 'undefined' && 'remove' in Event) {
+        Event.remove(this.upperCanvasEl, 'gesture', this._onGesture);
+        Event.remove(this.upperCanvasEl, 'drag', this._onDrag);
+        Event.remove(this.upperCanvasEl, 'orientation', this._onOrientationChange);
+        Event.remove(this.upperCanvasEl, 'shake', this._onShake);
+        Event.remove(this.upperCanvasEl, 'longpress', this._onLongPress);
       }
     },
 
@@ -10747,9 +10741,7 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
      */
 
     /**
-     * Type of an object (rect, circle, path, etc.).
-     * Note that this property is meant to be read-only and not meant to be modified.
-     * If you modify, certain parts of Fabric (such as JSON loading) won't work correctly.
+     * Type of an object (rect, circle, path, etc.)
      * @type String
      * @default
      */
@@ -10757,7 +10749,6 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
 
     /**
      * Horizontal origin of transformation of an object (one of "left", "right", "center")
-     * See http://jsfiddle.net/1ow02gea/40/ on how originX/originY affect objects in groups
      * @type String
      * @default
      */
@@ -10765,7 +10756,6 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
 
     /**
      * Vertical origin of transformation of an object (one of "top", "bottom", "center")
-     * See http://jsfiddle.net/1ow02gea/40/ on how originX/originY affect objects in groups
      * @type String
      * @default
      */
@@ -11652,7 +11642,7 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
       el.height = boundingRect.height;
 
       fabric.util.wrapElement(el, 'div');
-      var canvas = new fabric.StaticCanvas(el);
+      var canvas = new fabric.Canvas(el);
 
       // to avoid common confusion https://github.com/kangax/fabric.js/issues/806
       if (options.format === 'jpg') {
@@ -11839,7 +11829,7 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
     },
 
     /**
-     * Sets "color" of an instance (alias of `set('fill', …)`)
+     * Sets "color" of an instance (alias of `set('fill', &hellip;)`)
      * @param {String} color Color value
      * @return {fabric.Object} thisArg
      * @chainable
@@ -12534,7 +12524,6 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
 
     /**
      * Sets corner position coordinates based on current angle, width and height
-     * See https://github.com/kangax/fabric.js/wiki/When-to-call-setCoords
      * @return {fabric.Object} thisArg
      * @chainable
      */
@@ -12545,8 +12534,8 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
           f = function (p) {
             return fabric.util.transformPoint(p, vpt);
           },
-          w = this.width, currentWidth,
-          h = this.height, currentHeight,
+          w = this.width,
+          h = this.height,
           capped = this.strokeLineCap === 'round' || this.strokeLineCap === 'square',
           vLine = this.type === 'line' && this.width === 0,
           hLine = this.type === 'line' && this.height === 0,
@@ -12566,21 +12555,21 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
       if (strokeH) {
         h += h > 0 ? strokeWidth : -strokeWidth;
       }
-      currentWidth = w * this.scaleX + 2 * this.padding;
-      currentHeight = h * this.scaleY + 2 * this.padding;
+      this.currentWidth = w * this.scaleX;
+      this.currentHeight = h * this.scaleY;
 
       // If width is negative, make postive. Fixes path selection issue
-      if (currentWidth < 0) {
-        currentWidth = Math.abs(currentWidth);
+      if (this.currentWidth < 0) {
+        this.currentWidth = Math.abs(this.currentWidth);
       }
 
       var _hypotenuse = Math.sqrt(
-            Math.pow(currentWidth / 2, 2) +
-            Math.pow(currentHeight / 2, 2)),
+            Math.pow(this.currentWidth / 2, 2) +
+            Math.pow(this.currentHeight / 2, 2)),
 
           _angle = Math.atan(
-            isFinite(currentHeight / currentWidth)
-              ? currentHeight / currentWidth
+            isFinite(this.currentHeight / this.currentWidth)
+              ? this.currentHeight / this.currentWidth
               : 0),
 
           // offset added for rotate and scale actions
@@ -12589,7 +12578,7 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
           sinTh = Math.sin(theta),
           cosTh = Math.cos(theta),
           coords = this.getCenterPoint(),
-          wh = new fabric.Point(currentWidth, currentHeight),
+          wh = new fabric.Point(this.currentWidth, this.currentHeight),
           _tl =   new fabric.Point(coords.x - offsetX, coords.y - offsetY),
           _tr =   new fabric.Point(_tl.x + (wh.x * cosTh),   _tl.y + (wh.x * sinTh)),
           _bl =   new fabric.Point(_tl.x - (wh.y * sinTh),   _tl.y + (wh.y * cosTh)),
@@ -12602,7 +12591,21 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
           mt  = f(_mt),
           mr  = f(new fabric.Point(_tr.x - (wh.y/2 * sinTh), _tr.y + (wh.y/2 * cosTh))),
           mb  = f(new fabric.Point(_bl.x + (wh.x/2 * cosTh), _bl.y + (wh.x/2 * sinTh))),
-          mtr = f(new fabric.Point(_mt.x, _mt.y));
+          mtr = f(new fabric.Point(_mt.x, _mt.y)),
+
+          // padding
+          padX = Math.cos(_angle + theta) * this.padding * Math.sqrt(2),
+          padY = Math.sin(_angle + theta) * this.padding * Math.sqrt(2);
+
+      tl = tl.add(new fabric.Point(-padX, -padY));
+      tr = tr.add(new fabric.Point(padY, -padX));
+      br = br.add(new fabric.Point(padX, padY));
+      bl = bl.add(new fabric.Point(-padY, padX));
+      ml = ml.add(new fabric.Point((-padX - padY) / 2, (-padY + padX) / 2));
+      mt = mt.add(new fabric.Point((padY - padX) / 2, -(padY + padX) / 2));
+      mr = mr.add(new fabric.Point((padY + padX) / 2, (padY - padX) / 2));
+      mb = mb.add(new fabric.Point((padX - padY) / 2, (padX + padY) / 2));
+      mtr = mtr.add(new fabric.Point((padY - padX) / 2, -(padY + padX) / 2));
 
       // debugging
 
@@ -13849,8 +13852,8 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
     },
 
     /**
-     * Recalculates line points given width and height
      * @private
+     * Recalculate line points from width and height.
      */
     calcLinePoints: function() {
       var xMult = this.x1 <= this.x2 ? -1 : 1,
@@ -14008,7 +14011,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
      * @type Number
      * @default
      */
-    size: 0,
+    radius: 0,
 
     /**
      * Start angle of the circle, moving clockwise
@@ -14033,7 +14036,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
       options = options || { };
 
       this.callSuper('initialize', options);
-      this.set('size', options.size || 0);
+      this.set('radius', options.radius || 0);
       this.startAngle = options.startAngle || this.startAngle;
       this.endAngle = options.endAngle || this.endAngle;
     },
@@ -14047,7 +14050,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
     _set: function(key, value) {
       this.callSuper('_set', key, value);
 
-      if (key === 'size') {
+      if (key === 'radius') {
         this.setRadius(value);
       }
 
@@ -14061,7 +14064,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
      */
     toObject: function(propertiesToInclude) {
       return extend(this.callSuper('toObject', propertiesToInclude), {
-        radius: this.get('size'),
+        radius: this.get('radius'),
         startAngle: this.startAngle,
         endAngle: this.endAngle
       });
@@ -14131,23 +14134,23 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
     },
 
     /**
-     * Returns horizontal size of an object (according to how an object is scaled)
+     * Returns horizontal radius of an object (according to how an object is scaled)
      * @return {Number}
      */
     getRadiusX: function() {
-      return this.get('size') * this.get('scaleX');
+      return this.get('radius') * this.get('scaleX');
     },
 
     /**
-     * Returns vertical size of an object (according to how an object is scaled)
+     * Returns vertical radius of an object (according to how an object is scaled)
      * @return {Number}
      */
     getRadiusY: function() {
-      return this.get('size') * this.get('scaleY');
+      return this.get('radius') * this.get('scaleY');
     },
 
     /**
-     * Sets size of an object (and updates width accordingly)
+     * Sets radius of an object (and updates width accordingly)
      * @return {Number}
      */
     setRadius: function(value) {
@@ -14205,7 +14208,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
    * @private
    */
   function isValidRadius(attributes) {
-    return (('size' in attributes) && (attributes.size > 0));
+    return (('radius' in attributes) && (attributes.radius > 0));
   }
   /* _FROM_SVG_END_ */
 
@@ -14379,14 +14382,14 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
     type: 'ellipse',
 
     /**
-     * Horizontal size
+     * Horizontal radius
      * @type Number
      * @default
      */
     rx:   0,
 
     /**
-     * Vertical size
+     * Vertical radius
      * @type Number
      * @default
      */
@@ -14431,7 +14434,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
     },
 
     /**
-     * Returns horizontal size of an object (according to how an object is scaled)
+     * Returns horizontal radius of an object (according to how an object is scaled)
      * @return {Number}
      */
     getRx: function() {
@@ -14439,7 +14442,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
     },
 
     /**
-     * Returns Vertical size of an object (according to how an object is scaled)
+     * Returns Vertical radius of an object (according to how an object is scaled)
      * @return {Number}
      */
     getRy: function() {
@@ -14601,14 +14604,14 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
     type: 'rect',
 
     /**
-     * Horizontal border size
+     * Horizontal border radius
      * @type Number
      * @default
      */
     rx:   0,
 
     /**
-     * Vertical border size
+     * Vertical border radius
      * @type Number
      * @default
      */
@@ -15364,6 +15367,8 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
           controlY = 0, // current control point y
           tempX,
           tempY,
+          tempControlX,
+          tempControlY,
           l = -this.pathOffset.x,
           t = -this.pathOffset.y;
 
@@ -15466,17 +15471,9 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
             tempX = x + current[3];
             tempY = y + current[4];
 
-            if (previous[0].match(/[CcSs]/) === null) {
-              // If there is no previous command or if the previous command was not a C, c, S, or s,
-              // the control point is coincident with the current point
-              controlX = x;
-              controlY = y;
-            }
-            else {
-              // calculate reflection of previous control points
-              controlX = 2 * x - controlX;
-              controlY = 2 * y - controlY;
-            }
+            // calculate reflection of previous control points
+            controlX = controlX ? (2 * x - controlX) : x;
+            controlY = controlY ? (2 * y - controlY) : y;
 
             ctx.bezierCurveTo(
               controlX + l,
@@ -15500,17 +15497,9 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
           case 'S': // shorthand cubic bezierCurveTo, absolute
             tempX = current[3];
             tempY = current[4];
-            if (previous[0].match(/[CcSs]/) === null) {
-              // If there is no previous command or if the previous command was not a C, c, S, or s,
-              // the control point is coincident with the current point
-              controlX = x;
-              controlY = y;
-            }
-            else {
-              // calculate reflection of previous control points
-              controlX = 2 * x - controlX;
-              controlY = 2 * y - controlY;
-            }
+            // calculate reflection of previous control points
+            controlX = 2 * x - controlX;
+            controlY = 2 * y - controlY;
             ctx.bezierCurveTo(
               controlX + l,
               controlY + t,
@@ -15577,11 +15566,19 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
               controlX = x;
               controlY = y;
             }
-            else {
-              // calculate reflection of previous control point
+            else if (previous[0] === 't') {
+              // calculate reflection of previous control points for t
+              controlX = 2 * x - tempControlX;
+              controlY = 2 * y - tempControlY;
+            }
+            else if (previous[0] === 'q') {
+              // calculate reflection of previous control points for q
               controlX = 2 * x - controlX;
               controlY = 2 * y - controlY;
             }
+
+            tempControlX = controlX;
+            tempControlY = controlY;
 
             ctx.quadraticCurveTo(
               controlX + l,
@@ -15591,24 +15588,17 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
             );
             x = tempX;
             y = tempY;
-
+            controlX = x + current[1];
+            controlY = y + current[2];
             break;
 
           case 'T':
             tempX = current[1];
             tempY = current[2];
 
-            if (previous[0].match(/[QqTt]/) === null) {
-              // If there is no previous command or if the previous command was not a Q, q, T or t,
-              // assume the control point is coincident with the current point
-              controlX = x;
-              controlY = y;
-            }
-            else {
-              // calculate reflection of previous control point
-              controlX = 2 * x - controlX;
-              controlY = 2 * y - controlY;
-            }
+            // calculate reflection of previous control points
+            controlX = 2 * x - controlX;
+            controlY = 2 * y - controlY;
             ctx.quadraticCurveTo(
               controlX + l,
               controlY + t,
@@ -15846,6 +15836,8 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
           controlY = 0, // current control point y
           tempX,
           tempY,
+          tempControlX,
+          tempControlY,
           bounds;
 
       for (var i = 0, len = this.path.length; i < len; ++i) {
@@ -15940,17 +15932,9 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
             tempX = x + current[3];
             tempY = y + current[4];
 
-            if (previous[0].match(/[CcSs]/) === null) {
-              // If there is no previous command or if the previous command was not a C, c, S, or s,
-              // the control point is coincident with the current point
-              controlX = x;
-              controlY = y;
-            }
-            else {
-              // calculate reflection of previous control points
-              controlX = 2 * x - controlX;
-              controlY = 2 * y - controlY;
-            }
+            // calculate reflection of previous control points
+            controlX = controlX ? (2 * x - controlX) : x;
+            controlY = controlY ? (2 * y - controlY) : y;
 
             bounds = fabric.util.getBoundsOfCurve(x, y,
               controlX,
@@ -15973,17 +15957,9 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
           case 'S': // shorthand cubic bezierCurveTo, absolute
             tempX = current[3];
             tempY = current[4];
-            if (previous[0].match(/[CcSs]/) === null) {
-              // If there is no previous command or if the previous command was not a C, c, S, or s,
-              // the control point is coincident with the current point
-              controlX = x;
-              controlY = y;
-            }
-            else {
-              // calculate reflection of previous control points
-              controlX = 2 * x - controlX;
-              controlY = 2 * y - controlY;
-            }
+            // calculate reflection of previous control points
+            controlX = 2 * x - controlX;
+            controlY = 2 * y - controlY;
             bounds = fabric.util.getBoundsOfCurve(x, y,
               controlX,
               controlY,
@@ -16045,11 +16021,19 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
               controlX = x;
               controlY = y;
             }
-            else {
-              // calculate reflection of previous control point
+            else if (previous[0] === 't') {
+              // calculate reflection of previous control points for t
+              controlX = 2 * x - tempControlX;
+              controlY = 2 * y - tempControlY;
+            }
+            else if (previous[0] === 'q') {
+              // calculate reflection of previous control points for q
               controlX = 2 * x - controlX;
               controlY = 2 * y - controlY;
             }
+
+            tempControlX = controlX;
+            tempControlY = controlY;
 
             bounds = fabric.util.getBoundsOfCurve(x, y,
               controlX,
@@ -16061,24 +16045,16 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
             );
             x = tempX;
             y = tempY;
-
+            controlX = x + current[1];
+            controlY = y + current[2];
             break;
 
           case 'T':
             tempX = current[1];
             tempY = current[2];
-
-            if (previous[0].match(/[QqTt]/) === null) {
-              // If there is no previous command or if the previous command was not a Q, q, T or t,
-              // assume the control point is coincident with the current point
-              controlX = x;
-              controlY = y;
-            }
-            else {
-              // calculate reflection of previous control point
-              controlX = 2 * x - controlX;
-              controlY = 2 * y - controlY;
-            }
+            // calculate reflection of previous control points
+            controlX = 2 * x - controlX;
+            controlY = 2 * y - controlY;
             bounds = fabric.util.getBoundsOfCurve(x, y,
               controlX,
               controlY,
@@ -16534,7 +16510,9 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
       this._calcBounds();
       this._updateObjectsCoords();
 
-      this.callSuper('initialize', options);
+      if (options) {
+        extend(this, options);
+      }
 
       this.setCoords();
       this.saveCoords();
@@ -16662,11 +16640,14 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
     _set: function(key, value) {
       if (key in this.delegatedProperties) {
         var i = this._objects.length;
+        this[key] = value;
         while (i--) {
           this._objects[i].set(key, value);
         }
       }
-      this.callSuper('_set', key, value);
+      else {
+        this[key] = value;
+      }
     },
 
     /**
@@ -17398,7 +17379,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
       if (this.isMoving === false && this.resizeFilters.length && this._needsResize()) {
         this._lastScaleX = this.scaleX;
         this._lastScaleY = this.scaleY;
-        elementToDraw = this.applyFilters(null, this.resizeFilters, this._filteredEl || this._originalElement, true);
+        elementToDraw = this.applyFilters(null, this.resizeFilters, this._filteredEl || this._originalElement, false);
       }
       else {
         elementToDraw = this._element;
@@ -23776,3 +23757,4 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
   }
 
 })();
+

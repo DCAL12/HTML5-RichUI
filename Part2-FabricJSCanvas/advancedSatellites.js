@@ -2,42 +2,53 @@
  * Created by Douglas Callaway on 3/18/15.
  */
 const FULL_CIRCLE = 2 * Math.PI;
-const REFRESH_RATE = 10;
 
 var outerCircle = new fabric.Circle({
     strokeWidth: 5,
-    fill: "white",
-    radius: "300",
-    stroke: "lightGrey"
-});
-var satellites = [],
+    fill: 0,
+    stroke: "lightGrey",
+    selectable: false
+}),
+    satellite = new fabric.Circle({
+    radius: 20,
+    fill: "blue",
+    position: Math.PI,
+    orbit: 0,
+    orbitSpeed: Math.PI / 50
+}),
+    satellites = [],
     numberSatellites = 5,
     canvas = null,
-    timer = null;
+    timer = null,
+    minOrbitSpeed = 1,
+    maxOrbitSpeed = 10;
 
 window.onload = function () {
-    // Get document objects
-    canvas = new fabric.Canvas('canvas');
+    var orbitSpacing;
 
+    // Get document objects
+    canvas = new fabric.Canvas("canvas");
     if (canvas) {
 
         outerCircle.setRadius(Math.min(canvas.getWidth(), canvas.getHeight()) / 2 - outerCircle.strokeWidth);
+        canvas.add(outerCircle);
+        outerCircle.center();
+        orbitSpacing = outerCircle.getRadiusX() / numberSatellites;
 
         // Initialize satellites
         for (var i = 0; i < numberSatellites; i++) {
 
-            var newSatellite = new fabric.Circle({
-                fill: "blue",
-                left: 100,
-                top: 100,
-                radius: 20
+            var newSatellite = Object.create(satellite);
+            newSatellite.orbit = orbitSpacing * i + satellite.getRadiusX();
+            //newSatellite.position = Math.random() * FULL_CIRCLE;
+            newSatellite.orbitSpeed *= 1 / getRandomInteger(minOrbitSpeed, maxOrbitSpeed);
+            newSatellite.set({
+                left: newSatellite.orbit * Math.cos(newSatellite.position) + canvas.getWidth() / 2,
+                top: newSatellite.orbit * Math.sin(newSatellite.position) + canvas.getHeight() / 2
             });
-
-            newSatellite.setRadius(20);
             satellites.push(newSatellite);
-            canvas.add(outerCircle, newSatellite);
+            canvas.add(newSatellite);
         }
-
         //startAnimation();
     }
 };
@@ -65,12 +76,12 @@ function drawSatellites() {
     satellites.forEach(function (satellite) {
 
         // Draw orbit
-        /*context.restore();
-         context.strokeStyle = "lightGrey";
-         context.lineWidth = 1;
-         context.beginPath();
-         context.arc(0, 0, satellite.orbit, 0, FULL_CIRCLE);
-         context.stroke();*/
+        context.restore();
+        context.strokeStyle = "blue";
+        context.lineWidth = 1;
+        context.beginPath();
+        context.arc(0, 0, satellite.orbit, 0, FULL_CIRCLE);
+        context.stroke();
 
         // Draw Dot
         context.restore();
@@ -93,4 +104,8 @@ function clearCanvas() {
     context.arc(0, 0, outerCircle.radius, 0, FULL_CIRCLE);
     context.fill();
     context.stroke();
+}
+
+function getRandomInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
