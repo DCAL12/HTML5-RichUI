@@ -20,6 +20,7 @@ var satellite = {
 var satellites = [],
     numberSatellites = 5,
     context = null,
+    play = false,
     timer = null,
     minOrbitSpeed = 1,
     maxOrbitSpeed = 10;
@@ -49,12 +50,14 @@ window.onload = function () {
 };
 
 function startAnimation() {
+    play = true;
     timer = setInterval(drawSatellites, REFRESH_RATE);
     document.getElementById("play").disabled = true;
     document.getElementById("pause").disabled = false;
 }
 
 function stopAnimation() {
+    play = false;
     clearInterval(timer);
     document.getElementById("play").disabled = false;
     document.getElementById("pause").disabled = true;
@@ -63,7 +66,9 @@ function stopAnimation() {
 function reverse() {
     satellites.forEach(function (satellite) {
         satellite.orbitSpeed *= -1;
-    })
+    });
+
+    if (!play) {startAnimation();}
 }
 
 function drawSatellites() {
