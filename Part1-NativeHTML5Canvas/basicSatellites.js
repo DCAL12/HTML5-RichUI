@@ -50,7 +50,7 @@ var satellites = [];
     };
 
     function startAnimation() {
-        timer = setInterval(drawSatellites, REFRESH_RATE);
+        playTimer = setInterval(drawSatellites, REFRESH_RATE);
     }
 
     function drawSatellites() {
