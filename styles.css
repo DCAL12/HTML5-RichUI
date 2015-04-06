@@ -1,3 +1,7 @@
 canvas {
     border: dotted 1px black;
 }
+
+.controls {
+    alignment: right;
+}
