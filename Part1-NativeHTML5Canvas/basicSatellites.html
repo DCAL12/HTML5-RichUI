@@ -11,7 +11,9 @@
     <canvas id="canvas" width="800" height="800">Your browser does not support the HTML5 canvas</canvas>
 
     <ul class="control">
-        <li onclick="satelliteCanvas.reverse()">Reverse It </li>
+        <li id="play" onclick="satelliteCanvas.startAnimation()">Play</li>
+        <li id="pause" onclick="satelliteCanvas.stopAnimation()">Pause</li>
+        <li id="reverse" onclick="satelliteCanvas.reverse()">Reverse</li>
     </ul>
 </body>
 </html>

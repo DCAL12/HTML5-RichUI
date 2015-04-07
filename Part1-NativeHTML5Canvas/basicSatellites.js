@@ -43,13 +43,9 @@ var satelliteCanvas = function () {
                 newSatellite.position = Math.random() * FULL_CIRCLE;
                 satellites.push(newSatellite);
             }
-            startAnimation();
+            control.startAnimation();
         }
     };
-
-    function startAnimation() {
-        playTimer = setInterval(drawSatellites, REFRESH_RATE);
-    }
 
     function drawSatellites() {
         clearCanvas();
@@ -96,10 +92,31 @@ var satelliteCanvas = function () {
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
-    control.reverse = function () {
-        satellites.forEach(function (satellite) {
-            satellite.orbitSpeed *= -1;
-        });
+    control = {
+        startAnimation: function () {
+            if (!playTimer) {
+                playTimer = setInterval(drawSatellites, REFRESH_RATE);
+                document.getElementById('play').disabled = true;
+                document.getElementById('pause').disabled = false;
+            }
+        },
+
+        stopAnimation: function () {
+            clearInterval(playTimer);
+            playTimer = null;
+            document.getElementById('play').disabled = false;
+            document.getElementById('pause').disabled = true;
+        },
+
+        reverse: function () {
+            satellites.forEach(function (satellite) {
+                satellite.orbitSpeed *= -1;
+            });
+
+            if (!playTimer) {
+                control.startAnimation();
+            }
+        }
     };
 
     return control;
