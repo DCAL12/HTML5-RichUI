@@ -231,13 +231,16 @@ var satelliteFabric = (function () {
 
     control = {
         startAnimation: function () {
-            playTimer = setInterval(animate, refreshRate);
-            document.getElementById('play').disabled = true;
-            document.getElementById('pause').disabled = false;
+            if (!playTimer) {
+                playTimer = setInterval(animate, refreshRate);
+                document.getElementById('play').disabled = true;
+                document.getElementById('pause').disabled = false;
+            }
         },
 
         stopAnimation: function () {
             clearInterval(playTimer);
+            playTimer = null;
             document.getElementById('play').disabled = false;
             document.getElementById('pause').disabled = true;
         },
