@@ -1,12 +1,7 @@
 /**
  * Created by Douglas Callaway on 3/18/15.
  */
-var satellites = [],
-    playTimer = null,
-    refreshRate = 100,
-    canvas = null;
-
-(function () {
+var satelliteFabric = (function () {
     const FULL_CIRCLE = 2 * Math.PI;
     var outerCircle = new fabric.Ellipse({
             selectable: false,
@@ -30,14 +25,19 @@ var satellites = [],
             strokeWidth: 1,
             fill: 0,
             position: FULL_CIRCLE,
-            speed: Math.PI / 50
+            speed: Math.PI / 80
         }),
         star = new fabric.Circle({
             radius: 40
         }),
+        satellites = [],
         numberSatellites = 5,
         minOrbitSpeed = 1,
-        maxOrbitSpeed = 10;
+        maxOrbitSpeed = 10,
+        playTimer = null,
+        refreshRate = 100,
+        canvas = null,
+        control = {};
 
     window.onload = function () {
         var orbitSpacingX,
@@ -72,8 +72,7 @@ var satellites = [],
                     top: canvas.getCenter().top,
                     rx: (orbitSpacingX * i) + orbit.minRadius,
                     ry: (orbitSpacingY * i) + orbit.minRadius,
-                    position: fabric.util.getRandomInt(-FULL_CIRCLE,FULL_CIRCLE),
-                    speed: orbit.speed / fabric.util.getRandomInt(minOrbitSpeed, maxOrbitSpeed)
+                    position: fabric.util.getRandomInt(-FULL_CIRCLE, FULL_CIRCLE)
                 });
 
                 newSatellite.set(getCoordinatesFromPosition(newSatellite.orbit.rx, newSatellite.orbit.ry, newSatellite.orbit.position));
@@ -103,7 +102,7 @@ var satellites = [],
             canvas.add(star);
             star.center();
 
-            startAnimation();
+            control.startAnimation();
         }
 
         // Event Listeners
@@ -155,7 +154,7 @@ var satellites = [],
             satellite.set({
                 stroke: 'lightBlue',
                 strokeWidth: 2,
-                opacity:.75
+                opacity: .75
             })
         }
         else {
@@ -192,61 +191,67 @@ var satellites = [],
                 Math.abs(Math.abs(satellite.top - canvas.getCenter().top) //new orbit top coordinate
                 - Math.abs(satellite.savedOrbitPoint.y - canvas.getCenter().top)))); //old orbit top coordinate
     }
-}());
 
-function startAnimation() {
-    playTimer = setInterval(animate, refreshRate);
-    document.getElementById('play').disabled = true;
-    document.getElementById('pause').disabled = false;
-}
+    function animate() {
+        satellites.forEach(function (satellite) {
+            var nextCoordinate = getCoordinatesFromPosition(satellite.orbit.rx, satellite.orbit.ry, satellite.orbit.position += satellite.orbit.speed);
 
-function stopAnimation() {
-    clearInterval(playTimer);
-    document.getElementById('play').disabled = false;
-    document.getElementById('pause').disabled = true;
-}
+            satellite.animate({left: nextCoordinate.left}, {
+                duration: refreshRate
+            });
 
-function reverse() {
-    satellites.forEach(function (satellite) {
-        satellite.orbit.speed *= -1;
-    });
+            satellite.animate({top: nextCoordinate.top}, {
+                duration: refreshRate
+            });
 
-    if (!playTimer) {startAnimation();}
-}
-
-function animate() {
-    satellites.forEach(function (satellite) {
-        var nextCoordinate = getCoordinatesFromPosition(satellite.orbit.rx, satellite.orbit.ry, satellite.orbit.position += satellite.orbit.speed);
-
-        satellite.animate({left: nextCoordinate.left}, {
-            duration: refreshRate
+            satellite.animate(getAngleToStar(satellite), {
+                duration: refreshRate,
+                onChange: renderCanvas(satellite)
+            });
         });
 
-        satellite.animate({top: nextCoordinate.top}, {
-            duration: refreshRate
-        });
+        function renderCanvas(satellite) {
+            if (satellite === satellites[satellites.length - 1]) {
+                return canvas.renderAll.bind(canvas);
+            }
+        }
 
-        satellite.animate(getAngleToStar(satellite), {
-            duration: refreshRate,
-            onChange: renderCanvas(satellite)
-        });
-    });
-
-    function renderCanvas(satellite) {
-        if (satellite === satellites[satellites.length - 1]) {
-            return canvas.renderAll.bind(canvas);
+        function getAngleToStar(satellite) {
+            var starAngle = fabric.util.radiansToDegrees(satellite.orbit.position - (Math.PI / 2));
+            return {angle: starAngle}
         }
     }
 
-    function getAngleToStar(satellite) {
-        var starAngle = fabric.util.radiansToDegrees(satellite.orbit.position - (Math.PI / 2));
-        return {angle: starAngle}
+    function getCoordinatesFromPosition(orbitRadiusX, orbitRadiusY, angularPosition) {
+        return {
+            left: orbitRadiusX * Math.cos(angularPosition) + canvas.getCenter().left,
+            top: orbitRadiusY * Math.sin(angularPosition) + canvas.getCenter().top
+        }
     }
-}
 
-function getCoordinatesFromPosition(orbitRadiusX, orbitRadiusY, angularPosition) {
-    return {
-        left: orbitRadiusX * Math.cos(angularPosition) + canvas.getCenter().left,
-        top: orbitRadiusY * Math.sin(angularPosition) + canvas.getCenter().top
-    }
-}
+    control = {
+        startAnimation: function () {
+            playTimer = setInterval(animate, refreshRate);
+            document.getElementById('play').disabled = true;
+            document.getElementById('pause').disabled = false;
+        },
+
+        stopAnimation: function () {
+            clearInterval(playTimer);
+            document.getElementById('play').disabled = false;
+            document.getElementById('pause').disabled = true;
+        },
+
+        reverse: function () {
+            satellites.forEach(function (satellite) {
+                satellite.orbit.speed *= -1;
+            });
+
+            if (!playTimer) {
+                control.startAnimation();
+            }
+        }
+    };
+
+    return control;
+}());

@@ -1,30 +1,29 @@
 /**
  * Created by Douglas Callaway on 3/16/15.
  */
-var satellites = [];
 
-(function () {
+var satelliteCanvas = function () {
     const FULL_CIRCLE = 2 * Math.PI;
     const REFRESH_RATE = 50;
 
     var outerCircle = {
         borderWidth: 10,
         background: "white",
-        borderColor: "lightGrey"
-    };
-    var satellite = {
-        size: 30,
-        color: "blue",
-        position: Math.PI,
-        orbit: 0,
-        orbitSpeed: Math.PI / 50
+        borderColor: "rgb(214,214,214)"
     };
 
-    var satelliteCount = 5,
+    var satellite = {
+        size: 30,
+        color: "rgb(0,102,204)",
+        position: Math.PI,
+        orbit: 0,
+        orbitSpeed: Math.PI / 80
+    };
+    var satellites = [],
+        satelliteCount = 5,
         context = null,
-        timer = null,
-        minOrbitSpeed = 1,
-        maxOrbitSpeed = 10;
+        playTimer = null,
+        control = {};
 
     window.onload = function () {
 
@@ -42,7 +41,6 @@ var satellites = [];
                 var newSatellite = Object.create(satellite);
                 newSatellite.orbit = getRandomInteger(0, outerCircle.radius);
                 newSatellite.position = Math.random() * FULL_CIRCLE;
-                newSatellite.orbitSpeed *= 1 / getRandomInteger(minOrbitSpeed, maxOrbitSpeed);
                 satellites.push(newSatellite);
             }
             startAnimation();
@@ -87,7 +85,7 @@ var satellites = [];
         context.translate(context.canvas.width / 2, context.canvas.height / 2);
         context.fillStyle = outerCircle.background;
         context.strokeStyle = outerCircle.borderColor;
-        context.lineWidth = 5;
+        context.lineWidth = outerCircle.borderWidth;
         context.beginPath();
         context.arc(0, 0, outerCircle.radius, 0, FULL_CIRCLE);
         context.fill();
@@ -97,10 +95,12 @@ var satellites = [];
     function getRandomInteger(min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
-}());
 
-function reverse() {
-    satellites.forEach(function (satellite) {
-        satellite.orbitSpeed *= -1;
-    });
-}
+    control.reverse = function () {
+        satellites.forEach(function (satellite) {
+            satellite.orbitSpeed *= -1;
+        });
+    };
+
+    return control;
+}();
